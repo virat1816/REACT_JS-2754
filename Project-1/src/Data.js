@@ -16,3 +16,5 @@ export const data = [
         "author": "J.D. Salinger"
     }
 ]
+
+export default data;
