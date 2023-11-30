@@ -4,13 +4,15 @@ import Navbar from "./Navbar";
 import Home from "./Home";
 import About from "./About";
 import Contact from "./Contact";
+import Main from "./Main";
+
 
 function App() {
   const [value, setvalue] = useState({});
 
   const handle = (e) => {
     setvalue({ ...value, [e.target.name]: e.target.value });
-  };
+  }; 
   console.log(value);
   return(
     <div>
@@ -21,6 +23,7 @@ function App() {
           <Route path="/" exact element={<Home/>} />
           <Route path="/about" exact element={<About/>} />
           <Route path="/contact" exact element={<Contact/>} />
+          <Route path="/:id" exact element={<Main />} />
         </Routes>
       </div>
     </div>
