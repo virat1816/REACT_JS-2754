@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useRef, useState, useEffect } from "react";
 
 const Test = () => {
@@ -8,65 +7,61 @@ const Test = () => {
   const title = useRef();
   const author = useRef();
 
-  // Fetch data from the API
-  const getData = () => {
-    axios.get("http://localhost:3001/posts").then((res) => {
-      console.log(res.data);
-      setData(res.data || []);
-    });
+  // Load data from localStorage
+  const loadDataFromLocalStorage = () => {
+    const storedData = JSON.parse(localStorage.getItem("posts"));
+    setData(storedData || []);
   };
 
-  // Add new data to the server
+  // Save data to localStorage
+  const saveDataToLocalStorage = (newData) => {
+    localStorage.setItem("posts", JSON.stringify(newData));
+  };
+
+  // Add new data (post) to the list and localStorage
   const addData = () => {
-    const result = {
+    const newPost = {
+      id: Date.now(), // Generate a unique ID based on timestamp
       title: title.current.value,
       author: author.current.value,
     };
 
-    console.log(result);
-
-    axios.post("http://localhost:3001/posts", result).then((res) => {
-      console.log(res.data);
-      setData([...data, res.data]);
-    });
+    const updatedData = [...data, newPost];
+    setData(updatedData);
+    saveDataToLocalStorage(updatedData);
   };
 
-  // Update an existing post
+  // Update an existing post and save to localStorage
   const updateData = () => {
     const updatedPost = {
       title: title.current.value,
       author: author.current.value,
     };
 
-    axios
-      .put(`http://localhost:3001/posts/${editingPostId}`, updatedPost)
-      .then((res) => {
-        console.log(res.data);
-        setData(
-          data.map((post) =>
-            post.id === editingPostId ? { ...post, ...updatedPost } : post
-          )
-        );
-        setEditMode(false); // Exit edit mode after update
-        setEditingPostId(null);
-      });
+    const updatedData = data.map((post) =>
+      post.id === editingPostId ? { ...post, ...updatedPost } : post
+    );
+
+    setData(updatedData);
+    saveDataToLocalStorage(updatedData);
+
+    setEditMode(false); // Exit edit mode after update
+    setEditingPostId(null);
   };
 
-  // Delete a post
+  // Delete a post and update localStorage
   const deleteData = (id) => {
-    console.log(id);
-
-    axios.delete(`http://localhost:3001/posts/${id}`).then(() => {
-      setData(data.filter((post) => post.id !== id));
-    });
+    const updatedData = data.filter((post) => post.id !== id);
+    setData(updatedData);
+    saveDataToLocalStorage(updatedData);
   };
 
-  // Set up useEffect to get data when the component loads
+  // Set up useEffect to load data from localStorage when the component loads
   useEffect(() => {
-    getData();
+    loadDataFromLocalStorage();
   }, []);
 
-  // If we are in edit mode, show an edit button instead of the add button
+  // If we are in edit mode, show an update button instead of the add button
   return (
     <div>
       <input type="text" name="title" ref={title} />
@@ -79,7 +74,7 @@ const Test = () => {
       )}
 
       <div>
-        {data?.map((val, ind) => {
+        {data?.map((val) => {
           return (
             <div key={val.id}>
               <h1>{val.id}</h1>
